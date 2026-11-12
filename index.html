@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Freewrite — Free Online Freewriting Tool. Write to Think, No AI</title>
+<meta name="description" content="A free, quiet freewriting tool. Pick 5, 10 or 15 minutes and write without stopping — if you pause, your words fade. No sign-up, no AI, your text stays in your browser.">
+<meta property="og:title" content="Freewrite — Write to think">
+<meta property="og:description" content="A quiet page for freewriting. No sign-up, no AI, your words stay in your browser.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✍️</text></svg>">
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@graph":[
+    {
+      "@type":"WebApplication",
+      "name":"Freewrite",
+      "applicationCategory":"UtilitiesApplication",
+      "operatingSystem":"Any (web browser)",
+      "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},
+      "description":"A free online freewriting tool. Timed writing sessions where your text fades if you stop typing. No sign-up, no AI, local-only."
+    },
+    {
+      "@type":"FAQPage",
+      "mainEntity":[
+        {"@type":"Question","name":"Is Freewrite free?","acceptedAnswer":{"@type":"Answer","text":"Yes, completely free. No account, no paywall, no premium tier."}},
+        {"@type":"Question","name":"Do I need to sign up?","acceptedAnswer":{"@type":"Answer","text":"No. Open the page, pick a session length, and start writing immediately."}},
+        {"@type":"Question","name":"Where is my writing stored?","acceptedAnswer":{"@type":"Answer","text":"Only in your own browser, using localStorage. Nothing is sent to any server. You can copy or download your text as a .txt file when the session ends."}},
+        {"@type":"Question","name":"What is freewriting?","acceptedAnswer":{"@type":"Answer","text":"Freewriting is writing continuously for a set time without stopping to edit, judge, or correct. The goal is not good prose — it is to push your thinking past the obvious first layer."}},
+        {"@type":"Question","name":"Does Freewrite use AI?","acceptedAnswer":{"@type":"Answer","text":"No, and that is the point. Writing things yourself is how you find out what you actually think. This tool gives you a blank page and a timer — nothing writes for you."}},
+        {"@type":"Question","name":"Does it work on phones?","acceptedAnswer":{"@type":"Answer","text":"Yes. It runs in any modern mobile or desktop browser."}}
+      ]
+    }
+  ]
+}
+</script>
+<style>
+  :root{
+    --paper:#f7f4ee;
+    --ink:#1c1a17;
+    --muted:#6b6459;
+    --faint:#b0a996;
+    --accent:#b3402a;
+    --serif:Georgia,"Times New Roman",serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    background:var(--paper);color:var(--ink);
+    font-family:var(--serif);
+    display:flex;flex-direction:column;
+    -webkit-font-smoothing:antialiased;
+  }
+  .view{display:none;flex:1;flex-direction:column}
+  .view.on{display:flex}
+  button{font-family:var(--serif)}
+  a{color:var(--accent)}
+
+  /* ---------- landing ---------- */
+  #landing.on{display:block;overflow-y:auto}
+  .hero{
+    min-height:100vh;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;text-align:center;padding:24px;
+  }
+  .kicker{
+    font-size:13px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:24px;
+  }
+  .hero h1{
+    font-size:clamp(40px,7vw,72px);font-weight:400;
+    letter-spacing:-0.025em;line-height:1.05;margin-bottom:20px;
+  }
+  .hero h1 em{font-style:italic;color:var(--accent)}
+  .lede{
+    max-width:54ch;color:var(--muted);font-size:17px;line-height:1.65;margin-bottom:36px;
+  }
+  .lede b{color:var(--ink);font-weight:600}
+  .picker{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:28px}
+  .picker button{
+    font-size:20px;padding:14px 32px;cursor:pointer;
+    background:transparent;color:var(--ink);
+    border:1px solid var(--ink);border-radius:999px;
+    transition:background .15s,color .15s;
+  }
+  .picker button:hover{background:var(--ink);color:var(--paper)}
+  .how{
+    display:flex;gap:40px;flex-wrap:wrap;justify-content:center;
+    margin-bottom:32px;max-width:640px;
+  }
+  .how div{max-width:170px;text-align:left}
+  .how span{
+    display:block;font-size:13px;color:var(--accent);
+    font-variant-numeric:tabular-nums;margin-bottom:6px;letter-spacing:.08em;
+  }
+  .how p{font-size:14px;color:var(--muted);line-height:1.55}
+  .trust{font-size:13px;color:var(--muted)}
+  .trust b{color:var(--accent);font-weight:600}
+  #resume{
+    display:none;margin-top:24px;padding:14px 20px;
+    border:1px dashed rgba(0,0,0,.25);border-radius:12px;
+    font-size:14px;color:var(--muted);align-items:center;gap:16px;
+  }
+  #resume.on{display:flex}
+  #resume button{
+    font-size:14px;padding:7px 16px;cursor:pointer;border-radius:999px;
+    border:1px solid var(--ink);background:var(--ink);color:var(--paper);
+  }
+  #resume button.discard{background:transparent;color:var(--muted);border-color:rgba(0,0,0,.25)}
+  .scroll-hint{
+    margin-top:40px;font-size:12px;letter-spacing:.14em;color:var(--muted);
+    text-transform:uppercase;
+  }
+
+  /* ---------- seo content ---------- */
+  .content{max-width:65ch;margin:0 auto;padding:64px 24px 24px;line-height:1.75;font-size:17px}
+  .content h2{
+    font-size:28px;font-weight:400;letter-spacing:-0.02em;
+    margin:48px 0 16px;line-height:1.2;
+  }
+  .content h2:first-child{margin-top:0}
+  .content p{margin-bottom:16px;color:#3a362f}
+  .content p b{color:var(--ink)}
+  .content em{color:var(--accent)}
+  .rule{
+    display:flex;gap:16px;margin:24px 0;padding:16px 0;
+    border-top:1px solid rgba(0,0,0,.12);
+  }
+  .rule span{color:var(--accent);font-size:14px;letter-spacing:.08em;min-width:32px;padding-top:3px}
+  .rule p{margin:0}
+  .content details{
+    border-top:1px solid rgba(0,0,0,.12);padding:16px 0;
+  }
+  .content summary{
+    cursor:pointer;font-size:17px;list-style:none;position:relative;padding-right:24px;
+  }
+  .content summary::-webkit-details-marker{display:none}
+  .content summary::after{
+    content:"+";position:absolute;right:0;color:var(--accent);font-size:20px;
+  }
+  .content details[open] summary::after{content:"–"}
+  .content details p{margin:12px 0 4px;font-size:16px}
+  footer{
+    max-width:65ch;margin:0 auto;padding:40px 24px 56px;
+    font-size:13px;color:var(--muted);border-top:1px solid rgba(0,0,0,.12);
+  }
+
+  /* ---------- session ---------- */
+  #bar{
+    display:flex;align-items:center;justify-content:space-between;gap:16px;
+    padding:14px 24px;font-size:14px;color:var(--muted);
+    border-bottom:1px solid rgba(0,0,0,.08);
+  }
+  #timer{font-size:18px;color:var(--ink);font-variant-numeric:tabular-nums;min-width:64px}
+  #wcount{font-variant-numeric:tabular-nums;min-width:64px;text-align:right}
+  #warn{
+    color:var(--accent);opacity:0;transition:opacity .2s;
+    font-style:italic;font-size:15px;flex:1;text-align:center;
+  }
+  #warn.on{opacity:1}
+  #warn.panic{animation:pulse .8s infinite}
+  @keyframes pulse{50%{opacity:.35}}
+  #quit{
+    background:none;border:none;color:var(--muted);cursor:pointer;
+    font-size:14px;text-decoration:underline;text-underline-offset:3px;
+  }
+  #quit:hover{color:var(--ink)}
+  #page{flex:1;display:flex}
+  #pad{
+    flex:1;background:transparent;border:none;outline:none;resize:none;
+    font-family:var(--serif);font-size:20px;line-height:1.8;color:var(--ink);
+    padding:36px clamp(20px,10vw,140px) 72px;
+    transition:opacity .4s;
+  }
+  #pad::placeholder{color:var(--faint)}
+
+  /* ---------- done ---------- */
+  #done{align-items:center;justify-content:center;text-align:center;padding:24px;gap:8px}
+  #done h2{font-size:clamp(32px,5vw,44px);font-weight:400;letter-spacing:-0.02em;margin-bottom:12px}
+  #stats{color:var(--muted);font-size:16px;line-height:1.7;max-width:44ch}
+  #stats b{color:var(--ink);font-weight:600}
+  .actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:28px}
+  .actions button{
+    font-size:16px;padding:12px 26px;cursor:pointer;border-radius:999px;
+    border:1px solid var(--ink);background:var(--ink);color:var(--paper);
+    transition:opacity .15s;
+  }
+  .actions button.ghost{background:transparent;color:var(--ink)}
+  .actions button:hover{opacity:.75}
+  #copied{
+    color:var(--accent);font-size:14px;font-style:italic;
+    opacity:0;transition:opacity .3s;margin-top:16px;
+  }
+  #copied.on{opacity:1}
+</style>
+</head>
+<body>
+
+  <!-- 首页（首屏工具 + 下方 SEO 内容） -->
+  <section id="landing" class="view on">
+    <div class="hero">
+      <p class="kicker">Freewrite · No AI · No sign-up</p>
+      <h1>Write to <em>think</em>.</h1>
+      <p class="lede">A quiet, blank page for freewriting. Pick a length and write
+        whatever is in your head — the goal isn't good prose, it's
+        <b>clear thought</b>. If you stop typing for a few seconds, your words
+        begin to fade. Keep moving.</p>
+      <div class="picker">
+        <button data-min="5">5 min</button>
+        <button data-min="10">10 min</button>
+        <button data-min="15">15 min</button>
+      </div>
+      <div class="how">
+        <div><span>01</span><p>Pick a session length. There's no account and nothing to set up.</p></div>
+        <div><span>02</span><p>Write nonstop. Don't edit, don't delete — just keep your hands moving.</p></div>
+        <div><span>03</span><p>When time's up, copy or download your text. It never leaves your browser.</p></div>
+      </div>
+      <p class="trust">Everything runs locally. <b>No AI is involved in your writing</b> — that's the whole point.</p>
+      <div id="resume">
+        <span id="resume-info"></span>
+        <button id="resume-yes">Resume</button>
+        <button id="resume-no" class="discard">Discard</button>
+      </div>
+      <p class="scroll-hint">Why write to think ↓</p>
+    </div>
+
+    <div class="content">
+      <h2>Why write to think?</h2>
+      <p>A thought can feel perfectly clear right up until you try to write it down.
+        Then it wobbles. Sentences come out tangled, and you realize the idea was
+        thinner than it felt. That gap — between <em>feeling</em> that you understand
+        and <em>proving</em> it on paper — is exactly why writing is the cheapest
+        thinking test there is.</p>
+      <p>Writing slows your thoughts down to the speed of a sentence. It forces
+        vague notions to become claims, and claims to become arguments. You can't
+        hand-wave on the page. If a sentence won't come out straight, the thought
+        isn't straight yet — and now you know exactly which part to work on.</p>
+
+      <h2>What is freewriting?</h2>
+      <p>Freewriting is simple: you write continuously for a set amount of time
+        without stopping to edit, judge, or correct anything. No deleting, no
+        backspacing, no fixing typos. If you have nothing to say, you write
+        "I have nothing to say" until something shows up. It always does.</p>
+      <p>The practice was popularized by Peter Elbow and later Julia Cameron
+        (who called her version <em>morning pages</em>). The only real rule is
+        to keep your hands moving — momentum matters more than content.
+        Freewrite gives that rule teeth: if you stop, your words start to fade.</p>
+
+      <h2>The four rules</h2>
+      <div class="rule"><span>01</span><p><b>Don't stop.</b> Pausing to find the perfect word is where thinking stalls. Keep moving; imperfect words beat no words.</p></div>
+      <div class="rule"><span>02</span><p><b>Don't edit.</b> No deleting, no rearranging. Editing is a different mode of mind — it can wait until the timer ends.</p></div>
+      <div class="rule"><span>03</span><p><b>Don't judge.</b> The first layer of writing is always the obvious layer. You have to get through it to reach the interesting part.</p></div>
+      <div class="rule"><span>04</span><p><b>Keep it private.</b> A freewrite is for you. Nobody sees it unless you decide to share. That's why this tool has no accounts and no servers.</p></div>
+
+      <h2>Why no AI?</h2>
+      <p>Every writing tool seems to be adding an AI that writes for you now.
+        This one deliberately doesn't. Writing yourself is not a chore to
+        outsource — the struggle <em>is</em> the point. When a machine produces
+        polished paragraphs on demand, you get words without the understanding
+        that only comes from finding them yourself.</p>
+      <p>Freewrite gives you the opposite of a text generator: a blank page,
+        a timer, and a little pressure to keep going. What you produce is
+        entirely yours.</p>
+
+      <h2>FAQ</h2>
+      <details>
+        <summary>Is Freewrite free?</summary>
+        <p>Yes, completely free. No account, no paywall, no premium tier.</p>
+      </details>
+      <details>
+        <summary>Do I need to sign up?</summary>
+        <p>No. Open the page, pick a session length, and start writing immediately.</p>
+      </details>
+      <details>
+        <summary>Where is my writing stored?</summary>
+        <p>Only in your own browser, using localStorage. Nothing is sent to any server. You can copy or download your text as a .txt file when the session ends.</p>
+      </details>
+      <details>
+        <summary>Does Freewrite use AI?</summary>
+        <p>No, and that's the point. Nothing writes for you here.</p>
+      </details>
+      <details>
+        <summary>Does it work on phones?</summary>
+        <p>Yes — it runs in any modern mobile or desktop browser.</p>
+      </details>
+      <details>
+        <summary>Who is this for?</summary>
+        <p>Writers, developers, students, founders — anyone who suspects that their own thoughts are worth writing down. A 10-minute freewrite before starting work is a good way to find out what you actually think about the problem in front of you.</p>
+      </details>
+    </div>
+
+    <footer>
+      Freewrite — a quiet page for thinking. No AI, no accounts, no tracking.
+      Your text never leaves your browser.
+    </footer>
+  </section>
+
+  <!-- 写作中 -->
+  <section id="session" class="view">
+    <div id="bar">
+      <span id="timer">05:00</span>
+      <span id="warn">Keep writing…</span>
+      <span id="wcount">0 words</span>
+      <button id="quit">End early</button>
+    </div>
+    <div id="page">
+      <textarea id="pad" placeholder="Start with whatever is in your head…" spellcheck="false" autofocus></textarea>
+    </div>
+  </section>
+
+  <!-- 完成 -->
+  <section id="done" class="view">
+    <h2>Session complete.</h2>
+    <p id="stats"></p>
+    <div class="actions">
+      <button id="copy">Copy text</button>
+      <button id="download" class="ghost">Download .txt</button>
+      <button id="again" class="ghost">Write again</button>
+    </div>
+    <p id="copied"></p>
+  </section>
+
+<script>
+  const $=id=>document.getElementById(id);
+  const views={landing:$('landing'),session:$('session'),done:$('done')};
+  const pad=$('pad'),timerEl=$('timer'),warnEl=$('warn'),wcountEl=$('wcount'),statsEl=$('stats');
+
+  const IDLE_WARN=2,   // 停笔 2s 出现提醒
+        IDLE_FADE=7,   // 停笔 7s 开始变淡
+        FADE_TO=0.12;  // 最淡还剩一点影子
+  let totalSec=300,left=300,lastKey=Date.now(),tick=null,text='';
+
+  function show(v){
+    Object.values(views).forEach(e=>e.classList.remove('on'));
+    views[v].classList.add('on');
+    if(v==='landing')$('landing').scrollTop=0;
+  }
+  const fmt=s=>String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+  // 中文按字、英文按词统计
+  function count(t){
+    const cjk=(t.match(/[\u3000-\u303f\u4e00-\u9fff\uff00-\uffef]/g)||[]).length;
+    const latin=t.replace(/[\u3000-\u303f\u4e00-\u9fff\uff00-\uffef]/g,' ')
+                 .trim().split(/\s+/).filter(Boolean).length;
+    return {cjk,latin,total:cjk+latin};
+  }
+  function countLabel(t){
+    const c=count(t);
+    return c.cjk&&c.latin?`${c.cjk} 字 · ${c.latin} words`
+         :c.cjk?`${c.cjk} 字`:`${c.latin} words`;
+  }
+
+  // ---- 本地草稿存取（localStorage，只存在这台设备的浏览器里）----
+  const DRAFT_KEY='freewrite.draft';
+  function saveDraft(){
+    try{localStorage.setItem(DRAFT_KEY,JSON.stringify({
+      text:pad.value,totalSec,left,at:Date.now()}))}catch(e){}
+  }
+  function loadDraft(){
+    try{const d=JSON.parse(localStorage.getItem(DRAFT_KEY));
+      return d&&d.text&&Date.now()-d.at<864e5?d:null}catch(e){return null}
+  }
+  function clearDraft(){try{localStorage.removeItem(DRAFT_KEY)}catch(e){}}
+
+  // 打开页面时：有草稿就在首页提示恢复
+  const draft=loadDraft();
+  if(draft){
+    const mins=Math.round((draft.totalSec-draft.left)/60*10)/10;
+    $('resume-info').textContent=`You have an unfinished session from earlier (${countLabel(draft.text)}, ${mins} min in).`;
+    $('resume').classList.add('on');
+    $('resume-yes').onclick=()=>{
+      totalSec=draft.totalSec;left=draft.left;
+      pad.value=draft.text;pad.style.opacity=1;lastKey=Date.now();
+      timerEl.textContent=fmt(Math.max(left,0));wcountEl.textContent=countLabel(pad.value);
+      show('session');pad.focus();
+      clearInterval(tick);
+      tick=setInterval(tickFn,250);
+    };
+    $('resume-no').onclick=()=>{clearDraft();$('resume').classList.remove('on')};
+  }
+
+  document.querySelectorAll('.picker button').forEach(b=>b.onclick=()=>start(+b.dataset.min));
+  pad.addEventListener('input',()=>{
+    lastKey=Date.now();
+    pad.style.opacity=1;
+    warnEl.classList.remove('on','panic');
+    wcountEl.textContent=countLabel(pad.value);
+    saveDraft();
+  });
+
+  function tickFn(){
+    left--;timerEl.textContent=fmt(Math.max(left,0));
+    const idle=(Date.now()-lastKey)/1000;
+    warnEl.classList.toggle('on',idle>IDLE_WARN&&left>0);
+    warnEl.classList.toggle('panic',idle>IDLE_FADE-2&&left>0);
+    pad.style.opacity=idle>IDLE_FADE
+      ?Math.max(FADE_TO,1-(idle-IDLE_FADE)/5):1;
+    if(left<=0)finish();
+  }
+
+  function start(min){
+    totalSec=left=min*60;
+    text='';pad.value='';pad.style.opacity=1;lastKey=Date.now();
+    timerEl.textContent=fmt(left);wcountEl.textContent='0 words';
+    warnEl.classList.remove('on','panic');
+    show('session');pad.focus();
+    clearInterval(tick);
+    tick=setInterval(tickFn,250);
+  }
+
+  function finish(){
+    clearInterval(tick);
+    text=pad.value;
+    const w=count(text).total;
+    const used=Math.round((totalSec-Math.max(left,0))/60*10)/10;
+    const wpm=used>0?Math.round(w/used):0;
+    statsEl.innerHTML=`You wrote <b>${countLabel(text)}</b> in <b>${used} minutes</b> — about <b>${wpm} wpm</b>.<br>Take one minute to read it back, then keep the parts worth keeping.`;
+    clearDraft();
+    show('done');
+  }
+
+  $('quit').onclick=finish;
+  $('again').onclick=()=>show('landing');
+  $('copy').onclick=async()=>{
+    try{
+      await navigator.clipboard.writeText(text);
+      flashCopied('Copied to clipboard ✓');
+    }catch(e){
+      const ta=document.createElement('textarea');
+      ta.value=text;ta.style.position='fixed';ta.style.opacity='0';
+      document.body.appendChild(ta);ta.select();
+      try{document.execCommand('copy');flashCopied('Copied to clipboard ✓')}
+      catch(e2){flashCopied('Copy blocked — select and copy manually')}
+      document.body.removeChild(ta);
+    }
+  };
+  function flashCopied(msg){
+    const el=$('copied');el.textContent=msg;el.classList.add('on');
+    setTimeout(()=>el.classList.remove('on'),2500);
+  }
+  $('download').onclick=()=>{
+    try{
+      const a=document.createElement('a');
+      a.href=URL.createObjectURL(new Blob([text],{type:'text/plain'}));
+      a.download='freewrite-'+new Date().toISOString().slice(0,10)+'.txt';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(a.href);
+      flashCopied('Downloaded ✓');
+    }catch(e){
+      flashCopied('Download blocked — open the file directly to test');
+    }
+  };
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'&&views.session.classList.contains('on'))finish();
+  });
+</script>
+</body>
+</html>

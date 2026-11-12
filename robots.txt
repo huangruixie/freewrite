@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://huangruixie.github.io/freewrite/sitemap.xml
